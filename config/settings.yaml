@@ -37,7 +37,9 @@ mid_depth_threshold: 0.45      # Above this → "object ahead" (1.5–3m)
 
 # ── Image Enhancement (VLM preprocessing) ────────────────────────────────────
 enable_image_enhancement: true # Apply OpenCV filters before VLM processing
+enable_auto_white_balance: true # Correct color temperature (Gray World)
+enable_denoising: true         # Bilateral filter to smooth grain before sharpening
 clahe_clip_limit: 2.0          # Contrast limit for CLAHE
 clahe_grid_size: 8             # Grid size for CLAHE local contrast
-gamma_correction: 1.2          # >1 brightens shadows, <1 darkens
+gamma_correction: 1.2          # Base gamma (system dynamically adjusts if too dark/bright)
 unsharp_amount: 1.5            # Amount of sharpening to reduce motion blur

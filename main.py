@@ -37,6 +37,7 @@ from modules.m5_yolo import YOLODetector
 from modules.m5_vlm_guidance import GuidanceEngine
 from modules.m6_usability import start_web_server, update_state, log_event, get_tts_rate
 from modules.m0_image_enhancer import ImageEnhancer
+from modules.m8_sonification import SonificationEngine
 
 import yaml
 
@@ -151,6 +152,10 @@ def main():
     # Module 0: Image Enhancer
     logger.info("[INIT] Loading Image Enhancer...")
     enhancer = ImageEnhancer(config=cfg)
+
+    # Module 8: Sonification Engine (Safety Beeps)
+    logger.info("[INIT] Initializing Audio Sonification Engine...")
+    sonifier = SonificationEngine()
 
     logger.info("=" * 55)
     logger.info("  All modules ready. Starting navigation.  ")
@@ -343,6 +348,21 @@ def main():
                 planner.get_edge_description(current_node, path_nodes)
                 if path_nodes else ""
             )
+            # Module 2b: MiDaS Depth
+            depth_result = {"prompt_text": "Depth unknown.", "depth_map": None}
+            if frame_id % cfg.get("midas_every_n", 5) == 0:
+                depth_result = midas.estimate(frame)
+                
+                # Update Sonification Danger Level
+                # Max depth percentile (95th to avoid pixel noise)
+                max_depth = float(np.percentile(depth_result["depth_map"], 95))
+                # Map depth 0.4 -> 0.0 (safe) to 0.85 -> 1.0 (imminent collision)
+                if max_depth > 0.4:
+                    danger = (max_depth - 0.4) / (0.85 - 0.4)
+                    sonifier.set_danger_level(danger)
+                else:
+                    sonifier.set_danger_level(0.0)
+
             # Depth-aware YOLO prompt with per-object distance estimates
             yolo_text = yolo.format_for_prompt(
                 yolo_detections,

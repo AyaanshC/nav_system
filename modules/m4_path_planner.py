@@ -9,6 +9,7 @@ Caches description — only re-queries when start/goal change.
 import json
 import os
 import re
+import heapq
 from collections import deque
 from pathlib import Path
 from openai import OpenAI
@@ -85,10 +86,23 @@ class PathPlanner:
 
     # ── Path finding ──────────────────────────────────────────────────────────
 
+    def _area_cost(self, node_id: str) -> int:
+        """Assigns safety weight based on areaType. Higher cost = less safe."""
+        area_type = self.nodes.get(node_id, {}).get("areaType", "corridor")
+        cost_map = {
+            "corridor": 1,
+            "room": 1,
+            "open_area": 1,
+            "entrance": 2,
+            "elevator": 2,
+            "stairwell": 10  # Penalize heavily to route around stairs if possible
+        }
+        return cost_map.get(area_type, 1)
+
     def find_path(self, start_node: str, goal_node: str) -> list[str]:
         """
-        BFS from start_node to goal_node.
-
+        Dijkstra search from start_node to goal_node prioritizing safe paths.
+        
         Args:
             start_node: OSMAG node ID of current location
             goal_node:  OSMAG node ID of destination
@@ -105,18 +119,27 @@ class PathPlanner:
         if start_node == goal_node:
             return [start_node]
 
-        visited = {start_node}
-        queue: deque[list[str]] = deque([[start_node]])
+        # Priority queue stores tuples of (accumulated_cost, current_node, path_so_far)
+        queue = [(0, start_node, [start_node])]
+        
+        # Track the lowest cost to reach each node to avoid suboptimal revisiting
+        costs = {start_node: 0}
 
         while queue:
-            path = queue.popleft()
-            node = path[-1]
-            for neighbor in self.graph.get(node, []):
-                if neighbor == goal_node:
-                    return path + [neighbor]
-                if neighbor not in visited:
-                    visited.add(neighbor)
-                    queue.append(path + [neighbor])
+            current_cost, current_node, path = heapq.heappop(queue)
+
+            if current_node == goal_node:
+                return path
+
+            for neighbor in self.graph.get(current_node, []):
+                # Calculate cost to traverse to neighbor
+                neighbor_cost = self._area_cost(neighbor)
+                new_cost = current_cost + neighbor_cost
+
+                # If we found a cheaper way to reach neighbor (or it's unvisited)
+                if neighbor not in costs or new_cost < costs[neighbor]:
+                    costs[neighbor] = new_cost
+                    heapq.heappush(queue, (new_cost, neighbor, path + [neighbor]))
 
         logger.warning(f"[PathPlanner] No path found: {start_node} → {goal_node}")
         return []

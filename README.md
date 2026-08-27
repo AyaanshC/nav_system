@@ -11,7 +11,8 @@ By utilizing a standard smartphone camera and a local laptop GPU (e.g., RTX 4060
 ## 🌟 Key Features
 
 - **Zero-Manual Mapping:** Simply walk through a building once. The system automatically detects scene changes, captures keyframes, and uses local Vision-Language Models (VLM) to semantically label rooms, corridors, and landmarks.
-- **Local AI Pipeline:** 100% local inference ensuring absolute privacy and low latency. Uses **Qwen2.5-VL** (via Ollama) for spatial reasoning and **YOLO-World** + **MiDaS** for obstacle avoidance.
+- **Local AI Pipeline:** 100% local inference ensuring absolute privacy and low latency. Uses **Qwen2.5-VL** (via Ollama) for spatial reasoning and **YOLO-World + ByteTrack** + **MiDaS** for dynamic obstacle avoidance.
+- **Advanced Physical Safety:** Features **Instant Audio Sonification** (parking-sensor style beeps for imminent collisions) that bypasses slow TTS, ensuring real-time physical safety.
 - **DINOv2 Localization:** Sub-meter accuracy localization using Facebook's DINOv2 vision transformer and FAISS vector search.
 - **Dynamic Image Enhancement:** OpenCV-powered CLAHE, Unsharp Masking, and Gamma correction pipeline to fix low lighting and motion blur on-the-fly.
 - **Caregiver Dashboard:** A live web UI (`localhost:5050`) allowing caretakers to monitor the user's location, path, and live camera feed.
@@ -30,8 +31,8 @@ The system operates in two distinct phases:
 
 2. **Real-Time Navigation (`main.py`)**:
    - User states their destination via voice (Speech-to-Text).
-   - The path planner (BFS) calculates the optimal route.
-   - Live frames are processed by MiDaS (depth) and YOLO-World (obstacles).
+   - The path planner (**A* Search / Dijkstra**) calculates the optimal route, heavily penalizing dangerous areas like stairwells.
+   - Live frames are processed by MiDaS (depth) and YOLO-World with ByteTrack (obstacle tracking and velocity).
    - Current view + obstacles + path logic are passed to `qwen2.5vl:3b` to generate clear, concise verbal instructions (Edge-TTS).
 
 ---

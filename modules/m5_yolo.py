@@ -11,6 +11,7 @@ YOLO-World open-vocabulary detector.
 import torch
 import numpy as np
 import hashlib
+from collections import deque
 from ultralytics import YOLO
 from loguru import logger
 
@@ -52,6 +53,9 @@ class YOLODetector:
         self.device = device if torch.cuda.is_available() else "cpu"
         self._last_hash = ""
         self._last_results: list[dict] = []
+        
+        # ByteTrack history: track ID -> deque of (cx, cy, area)
+        self._history = {}
 
         logger.info(f"[YOLO] Loading {model_path} on {self.device}")
         self.model = YOLO(model_path)
@@ -85,8 +89,10 @@ class YOLODetector:
             return self._last_results, False
 
         use_half = self.device == "cuda"
-        results = self.model(
+        results = self.model.track(
             frame_bgr,
+            persist=True,      # Keep tracker state across frames
+            tracker="botsort.yaml", # Built-in ultralytics tracker
             verbose=False,
             device=self.device,
             half=use_half,
@@ -96,17 +102,49 @@ class YOLODetector:
 
         detections: list[dict] = []
         for r in results:
-            for box in r.boxes:
+            if r.boxes is None or r.boxes.id is None:
+                continue
+                
+            for i, box in enumerate(r.boxes):
                 cls_idx = int(box.cls[0])
                 cls_name = OBSTACLE_VOCAB[cls_idx] if cls_idx < len(OBSTACLE_VOCAB) else "unknown"
                 conf_val = float(box.conf[0])
-                # Filter out low-confidence detections — they pollute the VLM prompt
+                track_id = int(box.id[0])
+                
+                # Filter out low-confidence detections
                 if conf_val < 0.45:
                     continue
+                    
+                x1, y1, x2, y2 = [float(v) for v in box.xyxy[0]]
+                cx = (x1 + x2) / 2
+                cy = (y1 + y2) / 2
+                area = (x2 - x1) * (y2 - y1)
+                
+                # Update tracking history
+                if track_id not in self._history:
+                    self._history[track_id] = deque(maxlen=5)
+                self._history[track_id].append((cx, cy, area))
+                
+                # Determine motion
+                motion = "static"
+                hist = self._history[track_id]
+                if len(hist) >= 3:
+                    old_cx, old_cy, old_area = hist[0]
+                    dx = cx - old_cx
+                    d_area = area - old_area
+                    
+                    if d_area > (old_area * 0.15):  # Grew by 15% -> approaching
+                        motion = "approaching"
+                    elif dx < -20: # Moved left by 20 pixels
+                        motion = "moving left"
+                    elif dx > 20:  # Moved right by 20 pixels
+                        motion = "moving right"
+                        
                 detections.append({
                     "class":      cls_name,
                     "confidence": conf_val,
-                    "bbox":       [round(v, 1) for v in box.xyxy[0].tolist()]
+                    "bbox":       [round(x1, 1), round(y1, 1), round(x2, 1), round(y2, 1)],
+                    "motion":     motion
                 })
 
         # Delta check — hash the sorted class names only
@@ -168,11 +206,13 @@ class YOLODetector:
                     dist_label = "ahead (1.5-3m)"
                 else:
                     dist_label = "far (>3m)"
-                parts.append(f"{label} [{dist_label}]")
             else:
                 conf = d["confidence"]
                 conf_label = "high" if conf > 0.7 else "medium"
-                parts.append(f"{label} ({conf_label} confidence)")
+                dist_label = f"{conf_label} confidence"
+                
+            motion_str = f", {d['motion']}" if d.get("motion") != "static" else ""
+            parts.append(f"{label} [{dist_label}{motion_str}]")
 
         return "Detected objects: " + ", ".join(parts) + "."
 
