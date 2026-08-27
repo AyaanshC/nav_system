@@ -1,0 +1,43 @@
+# ── Stream ───────────────────────────────────────────────────────────────────
+# Update phone_stream_url with your phone's IP (shown in IP Webcam app)
+phone_stream_url: "http://192.168.1.5:8080/video"
+
+# ── SLAM / Localization ──────────────────────────────────────────────────────
+# true  = DINOv2+FAISS fallback (default, works on Windows, robust to lighting)
+# false = full ORB-SLAM3 (more precise trajectory, requires Linux build)
+use_slam_fallback: true
+orb_vocab_path: "ORB_SLAM3/Vocabulary/ORBvoc.txt"
+
+# DINOv2 localization settings
+dino_min_similarity: 0.60      # Cosine similarity threshold (below = location lost)
+dino_smooth_k: 3               # Node must win this many consecutive frames before transition
+
+# ── Models ───────────────────────────────────────────────────────────────────
+yolo_model: "models/yolov8s-worldv2.pt"
+midas_model: "models/midas_v21_small_256.pt"
+yolo_conf: 0.35                # Detection confidence threshold (lower = more detections)
+
+# ── Performance ──────────────────────────────────────────────────────────────
+yolo_every_n: 5                # Run YOLO every N frames (5 = ~6fps on 30fps stream)
+midas_every_n: 5               # Run MiDaS every N frames
+vlm_cache_age: 3.0             # Seconds before VLM result expires (even without change)
+min_speak_interval: 3.0        # Minimum seconds between spoken instructions
+
+# ── TTS ──────────────────────────────────────────────────────────────────────
+tts_voice: "en-US-JennyNeural"
+tts_rate_default: "+0%"
+
+# ── Web UI ───────────────────────────────────────────────────────────────────
+web_port: 5050
+
+# ── MiDaS depth thresholds ───────────────────────────────────────────────────
+# Relative inverse depth (larger = closer to camera)
+near_depth_threshold: 0.72     # Above this → "near obstacle" (~1.5m)
+mid_depth_threshold: 0.45      # Above this → "object ahead" (1.5–3m)
+
+# ── Image Enhancement (VLM preprocessing) ────────────────────────────────────
+enable_image_enhancement: true # Apply OpenCV filters before VLM processing
+clahe_clip_limit: 2.0          # Contrast limit for CLAHE
+clahe_grid_size: 8             # Grid size for CLAHE local contrast
+gamma_correction: 1.2          # >1 brightens shadows, <1 darkens
+unsharp_amount: 1.5            # Amount of sharpening to reduce motion blur

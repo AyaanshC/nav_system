@@ -1,0 +1,30 @@
+# Environments
+.env
+venv/
+env/
+ENV/
+.venv/
+
+# Pycache
+__pycache__/
+*.pyc
+*.pyo
+
+# Models & Weights
+models/
+*.pt
+*.pth
+*.onnx
+
+# Data & Logs
+logs/
+maps/
+*.mp4
+*.avi
+*.mkv
+*.faiss
+*.json
+
+# IDE
+.vscode/
+.idea/

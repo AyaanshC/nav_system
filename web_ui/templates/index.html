@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Real-time caregiver dashboard for the Multimodal Indoor Navigation System — monitor guidance, location, and obstacles for visually impaired users.">
+  <title>NavAssist — Caregiver Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header>
+  <div class="header-brand">
+    <div class="header-icon">🧭</div>
+    <div>
+      <div class="header-title">NavAssist</div>
+      <div class="header-subtitle">Caregiver Dashboard</div>
+    </div>
+  </div>
+  <div class="header-status" id="header-status-badge">
+    <span class="status-dot"></span>
+    <span id="header-status-text">Connecting...</span>
+  </div>
+</header>
+
+<!-- ── Main ── -->
+<div class="main-content">
+
+  <!-- Stats row -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-value" id="stat-instructions">0</div>
+      <div class="stat-label">Instructions Spoken</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-obstacles">0</div>
+      <div class="stat-label">Obstacles Logged</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-session">—</div>
+      <div class="stat-label">Session Duration</div>
+    </div>
+  </div>
+
+  <!-- Main grid -->
+  <div class="grid">
+
+    <!-- Card: Navigation Status -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-blue">📍</div>
+        <span class="card-title">Navigation Status</span>
+      </div>
+      <div id="nav-status-badge" class="status-badge idle">
+        <span class="status-dot"></span>
+        <span id="nav-status-text">Idle</span>
+      </div>
+
+      <div class="value-label">Current Location</div>
+      <div class="value-primary" id="location">—</div>
+
+      <div class="value-label">Destination</div>
+      <div class="value-sub" id="goal">Not set</div>
+    </div>
+
+    <!-- Card: Last Instruction -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-cyan">🔊</div>
+        <span class="card-title">Last Instruction Spoken</span>
+      </div>
+      <div class="instruction-box" id="instruction">
+        Waiting for navigation to start...
+      </div>
+      <div class="instruction-meta">
+        <span>Total instructions:</span>
+        <strong id="count" style="color:var(--accent-blue)">0</strong>
+      </div>
+    </div>
+
+    <!-- Card: Detected Obstacles -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-amber">⚠️</div>
+        <span class="card-title">Detected Obstacles</span>
+      </div>
+      <div class="detections-container" id="detections">
+        <span class="no-detections">No obstacles detected</span>
+      </div>
+    </div>
+
+    <!-- Card: Depth Sensor -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-purple">📡</div>
+        <span class="card-title">MiDaS Depth Sensor</span>
+      </div>
+      <div class="depth-grid">
+        <div class="depth-cell" id="depth-left">
+          <div class="depth-label">Left</div>
+          <div class="depth-value" id="depth-left-val">—</div>
+        </div>
+        <div class="depth-cell" id="depth-center">
+          <div class="depth-label">Center</div>
+          <div class="depth-value" id="depth-center-val">—</div>
+        </div>
+        <div class="depth-cell" id="depth-right">
+          <div class="depth-label">Right</div>
+          <div class="depth-value" id="depth-right-val">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: TTS Settings -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-green">🎙️</div>
+        <span class="card-title">Voice Settings</span>
+      </div>
+      <div class="slider-group">
+        <div class="slider-row">
+          <span class="slider-label">Speech rate</span>
+          <input type="range" id="tts-rate" min="-30" max="30" value="0" step="5">
+          <span class="rate-display" id="rate-val">+0%</span>
+        </div>
+        <button class="btn-primary" onclick="setRate()" id="apply-rate-btn">
+          ✓ Apply Speed
+        </button>
+      </div>
+    </div>
+
+    <!-- Card: Session Log (full width) -->
+    <div class="card grid-full">
+      <div class="card-header">
+        <div class="card-icon icon-blue">📋</div>
+        <span class="card-title">Session Log</span>
+      </div>
+      <div class="log-container" id="log">
+        <div class="empty-state">
+          <div class="empty-state-icon">📝</div>
+          <div>No events yet. Start navigation to see logs.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- .grid -->
+</div><!-- .main-content -->
+
+<script>
+// ── State ──────────────────────────────────────────────────
+let _sessionStart = null;
+let _obstacleCount = 0;
+let _prevInstruction = '';
+let _prevNode = '';
+
+// ── Helpers ────────────────────────────────────────────────
+function fmt(bucket) {
+  return { near: 'Near', mid: 'Mid', far: 'Clear' }[bucket] || '—';
+}
+
+function setDepthCell(id, valId, bucket) {
+  const cell = document.getElementById(id);
+  const val  = document.getElementById(valId);
+  cell.className = 'depth-cell ' + (bucket || '');
+  val.textContent = bucket ? fmt(bucket) : '—';
+}
+
+function renderDetections(detections) {
+  const el = document.getElementById('detections');
+  if (!detections || detections.length === 0) {
+    el.innerHTML = '<span class="no-detections">No obstacles detected</span>';
+    return;
+  }
+  el.innerHTML = detections.map(d => {
+    const high = d.confidence > 0.7;
+    return `<span class="detection-pill${high ? ' high-conf' : ''}">
+      ${high ? '🔴' : '🟡'} ${d.class}
+    </span>`;
+  }).join('');
+}
+
+function logTypeClass(type) {
+  const map = {
+    instruction: 'instruction',
+    node_change: 'node_change',
+    obstacle: 'obstacle',
+    goal_set: 'goal_set',
+    arrived: 'arrived',
+    path_computed: 'path_computed',
+  };
+  return map[type] || 'instruction';
+}
+
+function logEntryText(e) {
+  if (e.instruction) return e.instruction;
+  if (e.name)        return e.name;
+  if (e.spoken)      return `"${e.spoken}" → ${e.name || e.resolved_node}`;
+  return JSON.stringify(e).slice(0, 80);
+}
+
+function sessionDuration(startIso) {
+  if (!startIso) return '—';
+  const diffMs = Date.now() - new Date(startIso).getTime();
+  const s = Math.floor(diffMs / 1000);
+  const m = Math.floor(s / 60);
+  const h = Math.floor(m / 60);
+  if (h > 0)  return `${h}h ${m % 60}m`;
+  if (m > 0)  return `${m}m ${s % 60}s`;
+  return `${s}s`;
+}
+
+// ── Main refresh ────────────────────────────────────────────
+async function refresh() {
+  let state, log;
+  try {
+    [state, log] = await Promise.all([
+      fetch('/api/state').then(r => r.json()),
+      fetch('/api/log').then(r => r.json())
+    ]);
+  } catch (err) {
+    document.getElementById('header-status-text').textContent = 'Disconnected';
+    return;
+  }
+
+  // ── Header status ──
+  const headerBadge = document.getElementById('header-status-badge');
+  const headerText  = document.getElementById('header-status-text');
+  if (state.is_navigating) {
+    headerBadge.className = 'header-status active';
+    headerText.textContent = 'Live';
+  } else {
+    headerBadge.className = 'header-status';
+    headerText.textContent = 'Connected';
+  }
+
+  // ── Nav status badge ──
+  const navBadge = document.getElementById('nav-status-badge');
+  const navText  = document.getElementById('nav-status-text');
+  if (state.is_navigating) {
+    navBadge.className = 'status-badge navigating';
+    navText.textContent = 'Navigating';
+  } else {
+    navBadge.className = 'status-badge idle';
+    navText.textContent = 'Idle';
+  }
+
+  // ── Location & goal ──
+  const loc = document.getElementById('location');
+  const newLoc = state.current_node_name || '—';
+  if (newLoc !== _prevNode) {
+    loc.style.opacity = '0';
+    loc.style.transform = 'translateY(6px)';
+    setTimeout(() => {
+      loc.textContent = newLoc;
+      loc.style.transition = 'all 0.3s ease';
+      loc.style.opacity = '1';
+      loc.style.transform = 'translateY(0)';
+    }, 150);
+    _prevNode = newLoc;
+  }
+  document.getElementById('goal').textContent = state.goal_name || 'Not set';
+
+  // ── Instruction ──
+  const instrBox = document.getElementById('instruction');
+  const newInstr = state.last_instruction || 'No instruction yet';
+  if (newInstr !== _prevInstruction) {
+    instrBox.textContent = newInstr;
+    instrBox.className = 'instruction-box updated';
+    setTimeout(() => { instrBox.className = 'instruction-box'; }, 1500);
+    _prevInstruction = newInstr;
+  }
+  document.getElementById('count').textContent = state.instruction_count;
+
+  // ── Stats ──
+  document.getElementById('stat-instructions').textContent = state.instruction_count;
+  if (!_sessionStart) _sessionStart = state.session_start;
+  document.getElementById('stat-session').textContent = sessionDuration(_sessionStart);
+
+  // Count obstacles from log
+  const obs = (log || []).filter(e => e.type === 'obstacle').length;
+  document.getElementById('stat-obstacles').textContent = obs;
+
+  // ── Detections ──
+  renderDetections(state.detections);
+
+  // ── Depth ──
+  const depth = state.depth || {};
+  setDepthCell('depth-left',   'depth-left-val',   depth.left_bucket);
+  setDepthCell('depth-center', 'depth-center-val', depth.center_bucket);
+  setDepthCell('depth-right',  'depth-right-val',  depth.right_bucket);
+
+  // ── Session log ──
+  const logEl = document.getElementById('log');
+  if (!log || log.length === 0) {
+    logEl.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">📝</div>
+      <div>No events yet. Start navigation to see logs.</div>
+    </div>`;
+  } else {
+    logEl.innerHTML = [...log].reverse().slice(0, 30).map(e => `
+      <div class="log-entry">
+        <span class="log-ts">${e.timestamp ? e.timestamp.slice(11, 19) : '--:--:--'}</span>
+        <span class="log-type ${logTypeClass(e.type)}">${e.type.replace('_', ' ')}</span>
+        <span class="log-text">${logEntryText(e)}</span>
+      </div>
+    `).join('');
+  }
+}
+
+// ── TTS rate ────────────────────────────────────────────────
+async function setRate() {
+  const v    = parseInt(document.getElementById('tts-rate').value);
+  const rate = (v >= 0 ? '+' : '') + v + '%';
+  document.getElementById('rate-val').textContent = rate;
+
+  const btn = document.getElementById('apply-rate-btn');
+  btn.textContent = '⏳ Applying...';
+  btn.disabled = true;
+
+  try {
+    await fetch('/api/set_tts_rate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rate })
+    });
+    btn.textContent = '✓ Applied!';
+  } catch {
+    btn.textContent = '✗ Failed';
+  }
+  setTimeout(() => {
+    btn.textContent = '✓ Apply Speed';
+    btn.disabled = false;
+  }, 2000);
+}
+
+document.getElementById('tts-rate').addEventListener('input', function () {
+  const v = parseInt(this.value);
+  document.getElementById('rate-val').textContent = (v >= 0 ? '+' : '') + v + '%';
+});
+
+// ── Poll ────────────────────────────────────────────────────
+setInterval(refresh, 1500);
+refresh();
+</script>
+</body>
+</html>

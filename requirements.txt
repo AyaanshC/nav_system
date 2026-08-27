@@ -1,0 +1,45 @@
+# Core vision
+opencv-python==4.9.0.80
+numpy==1.26.4
+Pillow==10.3.0
+torchvision                 # Required by DINOv2 image transforms
+
+# YOLO-World
+ultralytics==8.2.18
+
+# MiDaS (timm is its backbone)
+timm==0.9.16
+einops==0.7.0
+
+# DINOv2 + FAISS localization (replaces ORB fallback)
+# DINOv2 is loaded via torch.hub (auto-downloaded on first run, ~350MB)
+faiss-cpu>=1.7.4            # FAISS nearest-neighbor search for localization index
+
+# SLAM (see README for ORB-SLAM3 build from source)
+# orbslam3-python is NOT pip-installable; built from source on Linux/WSL2
+
+# Speech
+SpeechRecognition==3.10.4
+PyAudio==0.2.14
+edge-tts>=7.2.8             # Must be 7.2.8+ for proper file handle management
+pygame==2.5.2               # for audio playback of TTS output
+
+# LLM / VLM (Ollama local — no cloud key needed)
+openai==1.30.1
+
+# API + web UI
+flask==3.0.3
+flask-cors==4.0.1
+
+# Map graph
+networkx==3.3
+
+# Config
+pyyaml==6.0.1
+python-dotenv==1.0.1
+
+# Utilities
+requests==2.32.2
+aiohttp==3.9.5
+asyncio-throttle==1.0.2
+loguru==0.7.2
