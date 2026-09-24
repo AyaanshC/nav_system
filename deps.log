@@ -1,0 +1,253 @@
+Collecting opencv-python==4.9.0.80 (from -r requirements.txt (line 2))
+  Downloading opencv_python-4.9.0.80-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (20 kB)
+Collecting numpy==1.26.4 (from -r requirements.txt (line 3))
+  Downloading numpy-1.26.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (61 kB)
+Collecting Pillow==10.3.0 (from -r requirements.txt (line 4))
+  Downloading pillow-10.3.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (9.2 kB)
+Requirement already satisfied: torchvision in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from -r requirements.txt (line 5)) (0.29.0)
+Collecting ultralytics==8.2.18 (from -r requirements.txt (line 8))
+  Downloading ultralytics-8.2.18-py3-none-any.whl.metadata (40 kB)
+Collecting timm==0.9.16 (from -r requirements.txt (line 11))
+  Downloading timm-0.9.16-py3-none-any.whl.metadata (38 kB)
+Collecting einops==0.7.0 (from -r requirements.txt (line 12))
+  Downloading einops-0.7.0-py3-none-any.whl.metadata (13 kB)
+Collecting faiss-cpu>=1.7.4 (from -r requirements.txt (line 16))
+  Downloading faiss_cpu-1.15.1-cp310-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (7.8 kB)
+Collecting SpeechRecognition==3.10.4 (from -r requirements.txt (line 22))
+  Downloading SpeechRecognition-3.10.4-py2.py3-none-any.whl.metadata (28 kB)
+Collecting PyAudio==0.2.14 (from -r requirements.txt (line 23))
+  Downloading PyAudio-0.2.14.tar.gz (47 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting edge-tts>=7.2.8 (from -r requirements.txt (line 24))
+  Downloading edge_tts-7.2.8-py3-none-any.whl.metadata (5.5 kB)
+Collecting pygame==2.5.2 (from -r requirements.txt (line 25))
+  Downloading pygame-2.5.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (13 kB)
+Collecting openai==1.30.1 (from -r requirements.txt (line 28))
+  Downloading openai-1.30.1-py3-none-any.whl.metadata (21 kB)
+Collecting flask==3.0.3 (from -r requirements.txt (line 31))
+  Downloading flask-3.0.3-py3-none-any.whl.metadata (3.2 kB)
+Collecting flask-cors==4.0.1 (from -r requirements.txt (line 32))
+  Downloading Flask_Cors-4.0.1-py2.py3-none-any.whl.metadata (5.5 kB)
+Collecting networkx==3.3 (from -r requirements.txt (line 35))
+  Downloading networkx-3.3-py3-none-any.whl.metadata (5.1 kB)
+Collecting pyyaml==6.0.1 (from -r requirements.txt (line 38))
+  Downloading PyYAML-6.0.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.1 kB)
+Collecting python-dotenv==1.0.1 (from -r requirements.txt (line 39))
+  Downloading python_dotenv-1.0.1-py3-none-any.whl.metadata (23 kB)
+Collecting requests==2.32.2 (from -r requirements.txt (line 42))
+  Downloading requests-2.32.2-py3-none-any.whl.metadata (4.6 kB)
+Collecting aiohttp==3.9.5 (from -r requirements.txt (line 43))
+  Downloading aiohttp-3.9.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.5 kB)
+Collecting asyncio-throttle==1.0.2 (from -r requirements.txt (line 44))
+  Downloading asyncio_throttle-1.0.2-py3-none-any.whl.metadata (3.4 kB)
+Collecting loguru==0.7.2 (from -r requirements.txt (line 45))
+  Downloading loguru-0.7.2-py3-none-any.whl.metadata (23 kB)
+Requirement already satisfied: matplotlib>=3.3.0 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from ultralytics==8.2.18->-r requirements.txt (line 8)) (3.11.2)
+Collecting scipy>=1.4.1 (from ultralytics==8.2.18->-r requirements.txt (line 8))
+  Downloading scipy-1.18.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Requirement already satisfied: torch>=1.8.0 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from ultralytics==8.2.18->-r requirements.txt (line 8)) (2.14.0)
+Requirement already satisfied: tqdm>=4.64.0 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from ultralytics==8.2.18->-r requirements.txt (line 8)) (4.70.1)
+Requirement already satisfied: psutil in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from ultralytics==8.2.18->-r requirements.txt (line 8)) (7.2.2)
+Collecting py-cpuinfo (from ultralytics==8.2.18->-r requirements.txt (line 8))
+  Downloading py_cpuinfo-9.0.0-py3-none-any.whl.metadata (794 bytes)
+Collecting thop>=0.1.1 (from ultralytics==8.2.18->-r requirements.txt (line 8))
+  Downloading thop-0.1.1.post2209072238-py3-none-any.whl.metadata (2.7 kB)
+Collecting pandas>=1.1.4 (from ultralytics==8.2.18->-r requirements.txt (line 8))
+  Downloading pandas-3.0.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (79 kB)
+Collecting seaborn>=0.11.0 (from ultralytics==8.2.18->-r requirements.txt (line 8))
+  Downloading seaborn-0.13.2-py3-none-any.whl.metadata (5.4 kB)
+Collecting huggingface_hub (from timm==0.9.16->-r requirements.txt (line 11))
+  Downloading huggingface_hub-2.0.0-py3-none-any.whl.metadata (16 kB)
+Collecting safetensors (from timm==0.9.16->-r requirements.txt (line 11))
+  Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.2 kB)
+Requirement already satisfied: typing-extensions in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from SpeechRecognition==3.10.4->-r requirements.txt (line 22)) (4.16.0)
+Requirement already satisfied: anyio<5,>=3.5.0 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from openai==1.30.1->-r requirements.txt (line 28)) (4.15.1)
+Collecting distro<2,>=1.7.0 (from openai==1.30.1->-r requirements.txt (line 28))
+  Using cached distro-1.9.0-py3-none-any.whl.metadata (6.8 kB)
+Requirement already satisfied: httpx<1,>=0.23.0 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from openai==1.30.1->-r requirements.txt (line 28)) (0.28.1)
+Requirement already satisfied: pydantic<3,>=1.9.0 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from openai==1.30.1->-r requirements.txt (line 28)) (2.13.5)
+Requirement already satisfied: sniffio in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from openai==1.30.1->-r requirements.txt (line 28)) (1.3.1)
+Collecting Werkzeug>=3.0.0 (from flask==3.0.3->-r requirements.txt (line 31))
+  Downloading werkzeug-3.1.8-py3-none-any.whl.metadata (4.0 kB)
+Requirement already satisfied: Jinja2>=3.1.2 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from flask==3.0.3->-r requirements.txt (line 31)) (3.1.6)
+Collecting itsdangerous>=2.1.2 (from flask==3.0.3->-r requirements.txt (line 31))
+  Downloading itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+Collecting click>=8.1.3 (from flask==3.0.3->-r requirements.txt (line 31))
+  Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+Collecting blinker>=1.6.2 (from flask==3.0.3->-r requirements.txt (line 31))
+  Downloading blinker-1.9.0-py3-none-any.whl.metadata (1.6 kB)
+Requirement already satisfied: charset-normalizer<4,>=2 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from requests==2.32.2->-r requirements.txt (line 42)) (3.5.1)
+Requirement already satisfied: idna<4,>=2.5 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from requests==2.32.2->-r requirements.txt (line 42)) (3.20)
+Requirement already satisfied: urllib3<3,>=1.21.1 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from requests==2.32.2->-r requirements.txt (line 42)) (2.8.0)
+Requirement already satisfied: certifi>=2017.4.17 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from requests==2.32.2->-r requirements.txt (line 42)) (2026.7.22)
+Collecting aiosignal>=1.1.2 (from aiohttp==3.9.5->-r requirements.txt (line 43))
+  Downloading aiosignal-1.4.0-py3-none-any.whl.metadata (3.7 kB)
+Collecting attrs>=17.3.0 (from aiohttp==3.9.5->-r requirements.txt (line 43))
+  Downloading attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+Collecting frozenlist>=1.1.1 (from aiohttp==3.9.5->-r requirements.txt (line 43))
+  Downloading frozenlist-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (20 kB)
+Collecting multidict<7.0,>=4.5 (from aiohttp==3.9.5->-r requirements.txt (line 43))
+  Downloading multidict-6.9.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.3 kB)
+Collecting yarl<2.0,>=1.0 (from aiohttp==3.9.5->-r requirements.txt (line 43))
+  Downloading yarl-1.25.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (111 kB)
+Requirement already satisfied: httpcore==1.* in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from httpx<1,>=0.23.0->openai==1.30.1->-r requirements.txt (line 28)) (1.0.9)
+Requirement already satisfied: h11>=0.16 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from httpcore==1.*->httpx<1,>=0.23.0->openai==1.30.1->-r requirements.txt (line 28)) (0.16.0)
+Requirement already satisfied: annotated-types>=0.6.0 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from pydantic<3,>=1.9.0->openai==1.30.1->-r requirements.txt (line 28)) (0.8.0)
+Requirement already satisfied: pydantic-core==2.46.5 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from pydantic<3,>=1.9.0->openai==1.30.1->-r requirements.txt (line 28)) (2.46.5)
+Requirement already satisfied: typing-inspection>=0.4.2 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from pydantic<3,>=1.9.0->openai==1.30.1->-r requirements.txt (line 28)) (0.4.4)
+Collecting propcache>=0.2.1 (from yarl<2.0,>=1.0->aiohttp==3.9.5->-r requirements.txt (line 43))
+  Downloading propcache-0.5.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (25 kB)
+Requirement already satisfied: filelock in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (4.0.3)
+Requirement already satisfied: setuptools>=77.0.3 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (84.0.0)
+Requirement already satisfied: sympy>=1.13.3 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (1.14.0)
+Requirement already satisfied: fsspec>=0.8.5 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (2026.9.0)
+Requirement already satisfied: cuda-toolkit==13.0.3 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (13.0.3.0)
+Requirement already satisfied: cuda-bindings<14,>=13.0.3 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (13.4.3)
+Requirement already satisfied: nvidia-cudnn-cu13==9.24.0.43 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (9.24.0.43)
+Requirement already satisfied: nvidia-cusparselt-cu13==0.8.1 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (0.8.1)
+Requirement already satisfied: nvidia-nccl-cu13==2.30.7 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (2.30.7)
+Requirement already satisfied: nvidia-nvshmem-cu13==3.4.5 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (3.4.5)
+Requirement already satisfied: triton~=3.8.0 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (3.8.0)
+Requirement already satisfied: nvidia-cublas==13.1.1.3.* in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (13.1.1.3)
+Requirement already satisfied: nvidia-cuda-nvrtc==13.0.88.* in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (13.0.88)
+Requirement already satisfied: nvidia-cuda-runtime==13.0.96.* in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (13.0.96)
+Requirement already satisfied: nvidia-cufft==12.0.0.61.* in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (12.0.0.61)
+Requirement already satisfied: nvidia-nvjitlink<14,>=13.0.88 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (13.4.92)
+Requirement already satisfied: nvidia-cufile==1.15.1.6.* in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (1.15.1.6)
+Requirement already satisfied: nvidia-cuda-cupti==13.0.85.* in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (13.0.85)
+Requirement already satisfied: nvidia-curand==10.4.0.35.* in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (10.4.0.35)
+Requirement already satisfied: nvidia-cusolver==12.0.4.66.* in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (12.0.4.66)
+Requirement already satisfied: nvidia-cusparse==12.6.3.3.* in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (12.6.3.3)
+Requirement already satisfied: nvidia-nvtx==13.0.85.* in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (13.0.85)
+Requirement already satisfied: cuda-pathfinder>=1.4.2 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from cuda-bindings<14,>=13.0.3->torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (1.8.2)
+Requirement already satisfied: packaging in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from faiss-cpu>=1.7.4->-r requirements.txt (line 16)) (26.3)
+Collecting tabulate<1.0.0,>=0.4.4 (from edge-tts>=7.2.8->-r requirements.txt (line 24))
+  Downloading tabulate-0.10.0-py3-none-any.whl.metadata (40 kB)
+Requirement already satisfied: MarkupSafe>=2.0 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from Jinja2>=3.1.2->flask==3.0.3->-r requirements.txt (line 31)) (3.0.3)
+Requirement already satisfied: contourpy>=1.0.1 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from matplotlib>=3.3.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (1.4.0)
+Requirement already satisfied: cycler>=0.10 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from matplotlib>=3.3.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (0.12.1)
+Requirement already satisfied: fonttools>=4.28.2 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from matplotlib>=3.3.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (4.66.0)
+Requirement already satisfied: kiwisolver>=1.3.1 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from matplotlib>=3.3.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (1.5.1)
+Requirement already satisfied: pyparsing>=3 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from matplotlib>=3.3.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (3.3.3)
+Requirement already satisfied: python-dateutil>=2.7 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from matplotlib>=3.3.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (2.9.0.post0)
+INFO: pip is looking at multiple versions of contourpy to determine which version is compatible with other requirements. This could take a while.
+Collecting contourpy>=1.0.1 (from matplotlib>=3.3.0->ultralytics==8.2.18->-r requirements.txt (line 8))
+  Downloading contourpy-1.3.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (5.5 kB)
+Requirement already satisfied: six>=1.5 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from python-dateutil>=2.7->matplotlib>=3.3.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (1.17.0)
+INFO: pip is looking at multiple versions of scipy to determine which version is compatible with other requirements. This could take a while.
+Collecting scipy>=1.4.1 (from ultralytics==8.2.18->-r requirements.txt (line 8))
+  Downloading scipy-1.18.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+  Downloading scipy-1.17.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from sympy>=1.13.3->torch>=1.8.0->ultralytics==8.2.18->-r requirements.txt (line 8)) (1.3.0)
+Collecting hf-xet<2.0.0,>=1.6.0 (from huggingface_hub->timm==0.9.16->-r requirements.txt (line 11))
+  Downloading hf_xet-1.6.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+Requirement already satisfied: httpx2<3,>=2.0.0 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from huggingface_hub->timm==0.9.16->-r requirements.txt (line 11)) (2.13.1)
+Requirement already satisfied: httpcore2==2.13.1 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from httpx2<3,>=2.0.0->huggingface_hub->timm==0.9.16->-r requirements.txt (line 11)) (2.13.1)
+Requirement already satisfied: truststore>=0.10 in /home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages (from httpx2<3,>=2.0.0->huggingface_hub->timm==0.9.16->-r requirements.txt (line 11)) (0.10.4)
+Downloading opencv_python-4.9.0.80-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (62.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 62.2/62.2 MB 40.4 MB/s  0:00:01
+Downloading numpy-1.26.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (18.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 18.0/18.0 MB 22.3 MB/s  0:00:00
+Downloading pillow-10.3.0-cp312-cp312-manylinux_2_28_x86_64.whl (4.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 28.9 MB/s  0:00:00
+Downloading ultralytics-8.2.18-py3-none-any.whl (757 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.2/757.2 kB 68.1 MB/s  0:00:00
+Downloading timm-0.9.16-py3-none-any.whl (2.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 80.4 MB/s  0:00:00
+Downloading einops-0.7.0-py3-none-any.whl (44 kB)
+Downloading SpeechRecognition-3.10.4-py2.py3-none-any.whl (32.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 32.8/32.8 MB 20.2 MB/s  0:00:01
+Downloading pygame-2.5.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (13.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 13.9/13.9 MB 23.3 MB/s  0:00:00
+Downloading openai-1.30.1-py3-none-any.whl (320 kB)
+Downloading flask-3.0.3-py3-none-any.whl (101 kB)
+Downloading Flask_Cors-4.0.1-py2.py3-none-any.whl (14 kB)
+Downloading networkx-3.3-py3-none-any.whl (1.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 88.2 MB/s  0:00:00
+Downloading PyYAML-6.0.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (724 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 725.0/725.0 kB 55.9 MB/s  0:00:00
+Downloading python_dotenv-1.0.1-py3-none-any.whl (19 kB)
+Downloading requests-2.32.2-py3-none-any.whl (63 kB)
+Downloading aiohttp-3.9.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 55.3 MB/s  0:00:00
+Downloading asyncio_throttle-1.0.2-py3-none-any.whl (4.1 kB)
+Downloading loguru-0.7.2-py3-none-any.whl (62 kB)
+Using cached distro-1.9.0-py3-none-any.whl (20 kB)
+Downloading multidict-6.9.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (336 kB)
+Downloading yarl-1.25.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (117 kB)
+Downloading faiss_cpu-1.15.1-cp310-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (18.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 18.8/18.8 MB 23.0 MB/s  0:00:00
+Downloading edge_tts-7.2.8-py3-none-any.whl (31 kB)
+Downloading tabulate-0.10.0-py3-none-any.whl (39 kB)
+Downloading aiosignal-1.4.0-py3-none-any.whl (7.5 kB)
+Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
+Downloading blinker-1.9.0-py3-none-any.whl (8.5 kB)
+Downloading click-8.5.0-py3-none-any.whl (125 kB)
+Downloading frozenlist-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (242 kB)
+Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Downloading contourpy-1.3.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (362 kB)
+Downloading pandas-3.0.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (10.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.8/10.8 MB 27.8 MB/s  0:00:00
+Downloading propcache-0.5.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (250 kB)
+Downloading scipy-1.17.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.2/35.2 MB 20.9 MB/s  0:00:01
+Downloading seaborn-0.13.2-py3-none-any.whl (294 kB)
+Downloading thop-0.1.1.post2209072238-py3-none-any.whl (15 kB)
+Downloading werkzeug-3.1.8-py3-none-any.whl (226 kB)
+Downloading huggingface_hub-2.0.0-py3-none-any.whl (828 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 828.5/828.5 kB 67.7 MB/s  0:00:00
+Downloading hf_xet-1.6.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 31.2 MB/s  0:00:00
+Downloading py_cpuinfo-9.0.0-py3-none-any.whl (22 kB)
+Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (516 kB)
+Building wheels for collected packages: PyAudio
+  Building wheel for PyAudio (pyproject.toml): started
+  Building wheel for PyAudio (pyproject.toml): finished with status 'error'
+  error: subprocess-exited-with-error
+
+  × Building wheel for PyAudio (pyproject.toml) did not run successfully.
+  │ exit code: 1
+  ╰─> [26 lines of output]
+      /tmp/pip-build-env-2th6agqr/overlay/lib/python3.12/site-packages/setuptools/dist.py:765: SetuptoolsDeprecationWarning: License classifiers are deprecated.
+      !!
+
+              ********************************************************************************
+              Please consider removing the following classifiers in favor of a SPDX license expression:
+
+              License :: OSI Approved :: MIT License
+
+              See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+              ********************************************************************************
+
+      !!
+        self._finalize_license_expression()
+      running bdist_wheel
+      running build
+      running build_py
+      creating build/lib.linux-x86_64-cpython-312/pyaudio
+      copying src/pyaudio/__init__.py -> build/lib.linux-x86_64-cpython-312/pyaudio
+      running build_ext
+      building 'pyaudio._portaudio' extension
+      gcc -fno-strict-overflow -Wsign-compare -DNDEBUG -g -O3 -Wall -fPIC -I/usr/local/include -I/usr/include -I/home/jules/.pyenv/versions/3.12.13/include/python3.12 -c src/pyaudio/device_api.c -o build/temp.linux-x86_64-cpython-312/src/pyaudio/device_api.o
+      src/pyaudio/device_api.c:9:10: fatal error: portaudio.h: No such file or directory
+          9 | #include "portaudio.h"
+            |          ^~~~~~~~~~~~~
+      compilation terminated.
+      error: Command '['gcc', '-fno-strict-overflow', '-Wsign-compare', '-DNDEBUG', '-g', '-O3', '-Wall', '-fPIC', '-I/usr/local/include', '-I/usr/include', '-I/home/jules/.pyenv/versions/3.12.13/include/python3.12', '-c', 'src/pyaudio/device_api.c', '-o', 'build/temp.linux-x86_64-cpython-312/src/pyaudio/device_api.o']' returned non-zero exit status 1.
+      [end of output]
+
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+  ERROR: Failed building wheel for PyAudio
+Failed to build PyAudio
+
+[notice] A new release of pip is available: 26.0.1 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+error: failed-wheel-build-for-install
+
+× Failed to build installable wheels for some pyproject.toml based projects
+╰─> PyAudio
