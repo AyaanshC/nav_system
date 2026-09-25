@@ -47,6 +47,15 @@ class SemanticGraph:
     def get_node(self, node_id: str) -> Optional[dict]:
         return self.nodes.get(str(node_id))
 
+    def mark_node_out_of_service(self, node_id: str):
+        """Dynamically marks a node as out of service."""
+        node = self.get_node(node_id)
+        if node:
+            if "status" not in node:
+                node["status"] = {}
+            node["status"]["in_service"] = False
+            logger.info(f"[Graph] Node {node_id} marked as out of service.")
+
     def get_neighbors(self, node_id: str) -> List[dict]:
         """Returns list of neighboring edges for a given node."""
         node_id_str = str(node_id)

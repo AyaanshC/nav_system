@@ -24,8 +24,14 @@ class YOLOWorldDetector:
         logger.info(f"[YOLO] Loading YOLO-World model on {self.device}")
 
         try:
-            self.model = YOLO(model_path)
-            self.model.set_classes(OBSTACLE_VOCAB)
+            # Check if model is onnx format
+            if model_path.endswith('.onnx'):
+                logger.info("[YOLO] ONNX model detected. It will use ONNXRuntime (or TensorRT if configured) for accelerated inference.")
+                # Ultralytics YOLO class automatically handles .onnx files if onnxruntime is installed.
+                self.model = YOLO(model_path, task='detect')
+            else:
+                self.model = YOLO(model_path)
+                self.model.set_classes(OBSTACLE_VOCAB)
         except Exception as e:
             logger.error(f"[YOLO] Failed to load YOLO model: {e}")
             logger.warning("[YOLO] Falling back to dummy YOLO model for testing.")
@@ -33,6 +39,7 @@ class YOLOWorldDetector:
 
         self._last_hash = ""
         self._last_results = []
+        self._history = {} # track ID -> history of (area)
 
     def detect(self, frame_bgr: np.ndarray, depth_map: np.ndarray, depth_estimator) -> Tuple[List[Dict], bool, bool]:
         """
@@ -54,8 +61,11 @@ class YOLOWorldDetector:
 
         H, W = frame_bgr.shape[:2]
 
-        results = self.model.predict(
+        # Use ByteTrack for object tracking
+        results = self.model.track(
             frame_bgr,
+            tracker="bytetrack.yaml",
+            persist=True,
             verbose=False,
             device=self.device,
             half=(self.device == "cuda"),
@@ -66,15 +76,31 @@ class YOLOWorldDetector:
         immediate_hazard = False
 
         for r in results:
-            if r.boxes is None:
+            if r.boxes is None or r.boxes.id is None:
                 continue
 
-            for box in r.boxes:
+            for i, box in enumerate(r.boxes):
                 cls_idx = int(box.cls[0])
                 cls_name = OBSTACLE_VOCAB[cls_idx] if cls_idx < len(OBSTACLE_VOCAB) else "obstacle"
                 conf_val = float(box.conf[0])
+                track_id = int(box.id[0])
 
                 x1, y1, x2, y2 = [float(v) for v in box.xyxy[0]]
+                area = (x2 - x1) * (y2 - y1)
+
+                # Update tracking history for motion estimation
+                if track_id not in self._history:
+                    self._history[track_id] = []
+                self._history[track_id].append(area)
+                if len(self._history[track_id]) > 5:
+                    self._history[track_id].pop(0)
+
+                motion = "static"
+                if len(self._history[track_id]) >= 3:
+                    old_area = self._history[track_id][0]
+                    # If bounding box area grew significantly, it's approaching
+                    if area > old_area * 1.15:
+                        motion = "approaching"
 
                 # Classify horizontal direction
                 x_center_norm = ((x1 + x2) / 2.0) / W
@@ -99,7 +125,8 @@ class YOLOWorldDetector:
                     "confidence": conf_val,
                     "bbox": [x1, y1, x2, y2],
                     "direction": direction,
-                    "distance": distance
+                    "distance": distance,
+                    "motion": motion
                 })
 
         # Hash check to see if we need to reprompt VLM

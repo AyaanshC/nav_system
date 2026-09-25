@@ -17,8 +17,13 @@ class VLMGuidanceNode:
         self.last_target = None
         self.last_detection_hash = ""
 
-        # If client not provided, it will use deterministic fallback.
-        self.vlm_client = vlm_client
+        # If client not provided, it will use local Ollama
+        import openai
+        if vlm_client:
+            self.vlm_client = vlm_client
+        else:
+            logger.info("[VLM] Initializing local Ollama client.")
+            self.vlm_client = openai.OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
         self.model = model
 
     def _encode_image(self, frame_bgr: np.ndarray) -> str:

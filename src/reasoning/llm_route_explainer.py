@@ -16,8 +16,8 @@ class LLMRouteExplainer:
         if api_key:
             self.client = openai.OpenAI(api_key=api_key)
         else:
-            logger.info("[LLM] No API key provided, defaulting to local fallback or mock.")
-            self.client = None
+            logger.info("[LLM] No API key provided, defaulting to local Ollama on localhost:11434.")
+            self.client = openai.OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
 
         self._cache = {}
 

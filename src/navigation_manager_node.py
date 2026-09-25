@@ -41,6 +41,7 @@ class NavigationManager:
         self.goal_node = None
         self.path_nodes = []
         self.latest_frame = None
+        self._obstacle_history = {} # Class -> Consecutive frames detected
 
         # Initialize modules
         logger.info("Initializing Graph and Planner...")
@@ -106,15 +107,37 @@ class NavigationManager:
             depth_map = self.depth_estimator.estimate(frame)
             detections, changed, immediate_hazard = self.yolo.detect(frame, depth_map, self.depth_estimator)
 
-            # Preemptive Safety Alert
+            # Preemptive Safety Alert & Dynamic Graph Updating
+            current_detected_classes = set()
             if immediate_hazard:
                 # Get the hazard name
                 hazards = [d for d in detections if d["direction"] == "Center" and d["distance"] < 1.5]
                 if hazards:
                     closest = min(hazards, key=lambda x: x["distance"])
                     self.tts.speak_alert(f"Caution: {closest['class']} {closest['distance']:.1f} meters directly ahead.")
+
+                    # Track persistent hazards for replanning
+                    hazard_class = closest['class']
+                    current_detected_classes.add(hazard_class)
+                    self._obstacle_history[hazard_class] = self._obstacle_history.get(hazard_class, 0) + 1
+
+                    # If obstacle detected for 20 consecutive frames (~2 secs), assume path blocked
+                    if self._obstacle_history[hazard_class] >= 20 and self.path_nodes and self.current_node:
+                        idx = self.path_nodes.index(self.current_node)
+                        if idx + 1 < len(self.path_nodes):
+                            next_node = self.path_nodes[idx + 1]
+                            logger.warning(f"[Replanning] Persistent obstacle '{hazard_class}' detected. Marking {next_node} as out of service and replanning.")
+                            self.graph.mark_node_out_of_service(next_node)
+                            self._replan()
+                            self._obstacle_history[hazard_class] = 0 # reset
+
                     # Prevent VLM from overriding this immediately by sleeping briefly
                     time.sleep(1.0)
+
+            # Decay unseen obstacles
+            for cls in list(self._obstacle_history.keys()):
+                if cls not in current_detected_classes:
+                    self._obstacle_history[cls] = 0
 
             # Guidance update via VLM
             if self.path_nodes and self.current_node:
@@ -139,6 +162,22 @@ class NavigationManager:
             elapsed = time.time() - start_time
             if elapsed < 0.1:
                 time.sleep(0.1 - elapsed)
+
+    def _replan(self):
+        """Recalculates the path to the goal_node from the current_node."""
+        if not self.goal_node or not self.current_node:
+            return
+
+        self.tts.speak_alert("Path blocked. Replanning route.")
+        path_dict = self.planner.find_path(self.current_node, self.goal_node)
+        self.path_nodes = path_dict.get("path", [])
+
+        if not self.path_nodes:
+            self.tts.speak("Cannot find a valid alternate route. Destination unreachable.")
+        else:
+            summary = self.explainer.summarize_route(self.path_nodes)
+            logger.info(f"New Route Summary: {summary}")
+            self.tts.speak(f"New route calculated. {summary}")
 
     def start(self):
         self.running = True
