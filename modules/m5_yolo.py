@@ -166,20 +166,23 @@ class YOLODetector:
         self,
         detections: list[dict],
         depth_map: np.ndarray | None = None,
-        frame_shape: tuple | None = None
+        frame_shape: tuple | None = None,
+        is_metric: bool = True
     ) -> str:
         """
         Convert detections to concise text for VLM prompt.
         If depth_map is provided, estimates per-object distance using the
-        MiDaS depth at the center of each bounding box.
+        depth at the center of each bounding box.
+        Supports both Metric Depth (meters) and legacy relative depth.
 
         Args:
             detections:  List of detection dicts from detect()
-            depth_map:   Optional MiDaS depth output (H x W float32, normalized 0-1)
+            depth_map:   Depth map array (metric meters or relative 0-1)
             frame_shape: (H, W) of original frame (needed to scale bboxes to depth_map)
+            is_metric:   True if depth_map values are in physical meters (default True)
 
         Returns:
-            e.g. "Detected objects: door (1.2m, very close), chair (2.8m, ahead)."
+            e.g. "Detected objects: door [1.2m, immediate hazard], chair [2.8m ahead, approaching]."
         """
         if not detections:
             return "No obstacles detected in current view."
@@ -199,13 +202,22 @@ class YOLODetector:
                 cy = max(0, min(cy, dh - 1))
                 depth_val = float(depth_map[cy, cx])
 
-                # Inverse depth: higher = closer
-                if depth_val > 0.72:
-                    dist_label = "very close (<1.5m)"
-                elif depth_val > 0.45:
-                    dist_label = "ahead (1.5-3m)"
+                if is_metric:
+                    # Metric depth (values are real physical meters)
+                    if depth_val < 0.8:
+                        dist_label = f"{depth_val:.1f}m, immediate hazard"
+                    elif depth_val < 2.0:
+                        dist_label = f"{depth_val:.1f}m ahead"
+                    else:
+                        dist_label = f"{depth_val:.1f}m away"
                 else:
-                    dist_label = "far (>3m)"
+                    # Inverse relative depth: higher = closer
+                    if depth_val > 0.72:
+                        dist_label = "very close (<1.5m)"
+                    elif depth_val > 0.45:
+                        dist_label = "ahead (1.5-3m)"
+                    else:
+                        dist_label = "far (>3m)"
             else:
                 conf = d["confidence"]
                 conf_label = "high" if conf > 0.7 else "medium"

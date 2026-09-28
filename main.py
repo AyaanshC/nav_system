@@ -32,6 +32,7 @@ from modules.m1_user_interaction import listen_for_goal, speak, listen_for_inter
 from modules.m2_phone_stream import PhoneStream
 from modules.m2_slam import SLAMLocalizer
 from modules.m2_midas import DepthEstimator
+from modules.m2_metric_depth import MetricDepthEstimator
 from modules.m4_path_planner import PathPlanner
 from modules.m5_yolo import YOLODetector
 from modules.m5_vlm_guidance import GuidanceEngine
@@ -126,12 +127,23 @@ def main():
         vocab_path=cfg.get("orb_vocab_path", "ORB_SLAM3/Vocabulary/ORBvoc.txt")
     )
 
-    # Module 2c: MiDaS depth
-    logger.info("[INIT] Loading MiDaS depth estimator...")
-    midas = DepthEstimator(
-        model_path=cfg.get("midas_model", "models/midas_v21_small_256.pt"),
-        device="cuda"
-    )
+    # Module 2c: Depth perception (Metric Video-Depth-Anything or legacy MiDaS)
+    use_metric = cfg.get("use_metric_depth", True)
+    if use_metric:
+        logger.info("[INIT] Loading Metric Depth Estimator (Video-Depth-Anything Small)...")
+        depth_estimator = MetricDepthEstimator(
+            model_path=cfg.get("metric_depth_model", "models/metric_video_depth_anything_vits.pth"),
+            device="cuda",
+            input_size=cfg.get("metric_input_size", 518),
+            collision_dist_m=cfg.get("metric_collision_dist_m", 0.6),
+            warning_dist_m=cfg.get("metric_warning_dist_m", 1.8),
+        )
+    else:
+        logger.info("[INIT] Loading legacy MiDaS depth estimator...")
+        depth_estimator = DepthEstimator(
+            model_path=cfg.get("midas_model", "models/midas_v21_small_256.pt"),
+            device="cuda"
+        )
 
     # Module 5a: YOLO detector
     logger.info("[INIT] Loading YOLO-World object detector...")
@@ -305,15 +317,22 @@ def main():
                     "detections": [d["class"] for d in yolo_detections]
                 })
 
-        # 6. MiDaS depth estimation (every N frames)
+        # 6. Depth estimation & instant acoustic sonification (every N frames)
         if frame_id % MIDAS_EVERY_N == 0:
-            depth_result = midas.estimate(frame)
+            depth_result = depth_estimator.estimate(frame)
             update_state(depth={
                 "prompt_text":   depth_result["prompt_text"],
                 "left_bucket":   depth_result["left_bucket"],
                 "center_bucket": depth_result["center_bucket"],
                 "right_bucket":  depth_result["right_bucket"],
             })
+            # Update instant sonification with physical metric danger level
+            if "danger_level" in depth_result:
+                sonifier.set_danger_level(depth_result["danger_level"])
+            elif depth_result.get("depth_map") is not None:
+                max_depth = float(np.percentile(depth_result["depth_map"], 95))
+                danger = (max_depth - 0.4) / (0.85 - 0.4) if max_depth > 0.4 else 0.0
+                sonifier.set_danger_level(danger)
 
         # 7. Check if arrived at destination
         if goal_node and current_node == goal_node:
@@ -348,26 +367,12 @@ def main():
                 planner.get_edge_description(current_node, path_nodes)
                 if path_nodes else ""
             )
-            # Module 2b: MiDaS Depth
-            depth_result = {"prompt_text": "Depth unknown.", "depth_map": None}
-            if frame_id % cfg.get("midas_every_n", 5) == 0:
-                depth_result = midas.estimate(frame)
-                
-                # Update Sonification Danger Level
-                # Max depth percentile (95th to avoid pixel noise)
-                max_depth = float(np.percentile(depth_result["depth_map"], 95))
-                # Map depth 0.4 -> 0.0 (safe) to 0.85 -> 1.0 (imminent collision)
-                if max_depth > 0.4:
-                    danger = (max_depth - 0.4) / (0.85 - 0.4)
-                    sonifier.set_danger_level(danger)
-                else:
-                    sonifier.set_danger_level(0.0)
-
             # Depth-aware YOLO prompt with per-object distance estimates
             yolo_text = yolo.format_for_prompt(
                 yolo_detections,
                 depth_map=depth_result.get("depth_map"),
-                frame_shape=frame.shape
+                frame_shape=frame.shape,
+                is_metric=depth_result.get("is_metric", True)
             )
             
             enhanced_frame = enhancer.enhance(frame)
