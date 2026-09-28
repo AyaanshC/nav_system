@@ -219,7 +219,7 @@ class GuidanceEngine:
 
         try:
             response = client.chat.completions.create(
-                model="qwen2.5vl:3b",
+                model="qwen2.5vl:7b",
                 max_tokens=50,
                 temperature=0.15,
                 messages=[
