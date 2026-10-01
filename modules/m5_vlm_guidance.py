@@ -34,21 +34,31 @@ client = OpenAI(
 
 SYSTEM_PROMPT = """You are a real-time navigation assistant for a visually impaired person.
 
-You receive:
-  - The user's recent journey (where they've been)
-  - Their current location in the building
-  - The next navigation step
-  - Detected nearby objects and distances
-  - Depth sensor readings (left/center/right)
-  - Two camera images: previous moment and right now
+You are given:
+  - A camera image of what the person sees RIGHT NOW
+  - Their current room/location name
+  - Nearby obstacles detected by sensors (YOLO + depth)
+  - A suggested next movement direction
 
-Your job: Generate ONE short spoken instruction (max 20 words) for RIGHT NOW.
-Rules:
-  - Safety first: warn about CLOSE obstacles before giving direction
-  - Be specific about direction: left, right, straight, stop, slow down
-  - Reference visible landmarks when helpful ("past the elevator", "through the glass door")
-  - Do NOT say "I see" or "the camera shows" — just give the instruction
-  - Sound calm, natural, and confident"""
+Your task: Write ONE short, spoken navigation instruction (max 15 words).
+
+CRITICAL RULES:
+  1. LOOK at the image carefully. Describe what is actually visible.
+  2. ALWAYS mention specific visible objects near the person (furniture, doors, walls).
+  3. Use the suggested direction as a guide, but ground it in the REAL scene.
+  4. If there is a close obstacle (< 2m), WARN about it first.
+  5. Use plain, natural speech. No "I see", no "the camera shows".
+  6. Be specific: "step left past the dining chair" beats "move forward".
+
+Examples of GOOD instructions:
+  - "Move forward, the glass door is straight ahead."
+  - "Slow down — chair on your right, 1 meter."
+  - "Turn left at the end of the hallway."
+  - "Continue through, sofa is clear on your left."
+
+Examples of BAD instructions (DO NOT do these):
+  - "Continue forward through the double doors." (too generic, not grounded)
+  - "Move forward." (no landmark reference)"""
 
 
 # ── Narrative Memory ───────────────────────────────────────────────────────────
@@ -191,12 +201,12 @@ class GuidanceEngine:
         direction = edge_description if edge_description else next_step_instruction
 
         user_text = (
-            f"Your recent journey: {self.narrative.get_text()}\n\n"
-            f"Current location: {current_node_name}\n"
-            f"Next step: {direction}\n"
-            f"{yolo_text}\n"
-            f"{depth_text}\n\n"
-            f"Generate ONE spoken navigation instruction for right now:"
+            f"Current room: {current_node_name}\n"
+            f"Navigation hint (direction only): {direction}\n"
+            f"Sensor data — {yolo_text}\n"
+            f"Depth: {depth_text}\n\n"
+            f"Look at the image. What specific objects do you see? "
+            f"Give ONE spoken instruction that describes what to do RIGHT NOW based on the real scene:"
         )
 
         content: list[dict] = [{"type": "text", "text": user_text}]
