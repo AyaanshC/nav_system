@@ -47,8 +47,8 @@ print("\n[3] OpenAI API key...", end="")
 from dotenv import load_dotenv
 load_dotenv()
 key = os.getenv("OPENAI_API_KEY", "")
-if key and key != "sk-paste-your-key-here" and key.startswith("sk-"):
-    print(f"  [OK]  (sk-...{key[-4:]})")
+if key and key not in ("sk-paste-your-key-here", "") and (key.startswith("sk-") or key.startswith("gsk_") or key == "ollama"):
+    print(f"  [OK]  (...{key[-4:]})")
 else:
     print("  [FAIL]  NOT SET")
     errors.append("OPENAI_API_KEY missing — edit .env and paste your key")

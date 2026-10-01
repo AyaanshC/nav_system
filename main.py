@@ -24,6 +24,7 @@ import urllib.request
 from pathlib import Path
 from dotenv import load_dotenv
 from loguru import logger
+import numpy as np
 
 # Load environment variables before importing modules
 load_dotenv()
@@ -31,7 +32,7 @@ load_dotenv()
 from modules.m1_user_interaction import listen_for_goal, speak, listen_for_interrupt, SPEECH_RATE
 from modules.m2_phone_stream import PhoneStream
 from modules.m2_slam import SLAMLocalizer
-from modules.m2_midas import DepthEstimator
+from modules.m2_depth_anything import DepthEstimator  # Depth Anything V2 (upgraded from MiDaS)
 from modules.m4_path_planner import PathPlanner
 from modules.m5_yolo import YOLODetector
 from modules.m5_vlm_guidance import GuidanceEngine
@@ -126,10 +127,10 @@ def main():
         vocab_path=cfg.get("orb_vocab_path", "ORB_SLAM3/Vocabulary/ORBvoc.txt")
     )
 
-    # Module 2c: MiDaS depth
-    logger.info("[INIT] Loading MiDaS depth estimator...")
+    # Module 2c: Depth Anything V2 (upgraded from MiDaS)
+    logger.info("[INIT] Loading Depth Anything V2 depth estimator...")
     midas = DepthEstimator(
-        model_path=cfg.get("midas_model", "models/midas_v21_small_256.pt"),
+        model_path=cfg.get("midas_model", ""),   # Ignored — weights loaded from HuggingFace
         device="cuda"
     )
 
@@ -292,7 +293,14 @@ def main():
                 continue
 
         # 5. YOLO detection (every N frames)
-        yolo_detections, det_changed = yolo.detect(frame, frame_id, every_n=YOLO_EVERY_N)
+        # Pass depth_map and depth_estimator so YOLO can compute per-object
+        # distances in meters using Depth Anything V2's bbox distance method.
+        yolo_detections, det_changed, immediate_hazard = yolo.detect(
+            frame, frame_id,
+            every_n=YOLO_EVERY_N,
+            depth_map=depth_result.get("depth_map"),
+            depth_estimator=midas
+        )
         detection_hash = hashlib.md5(
             ",".join(sorted(d["class"] for d in yolo_detections)).encode()
         ).hexdigest()
@@ -305,7 +313,36 @@ def main():
                     "detections": [d["class"] for d in yolo_detections]
                 })
 
-        # 6. MiDaS depth estimation (every N frames)
+        # ── IMMEDIATE HAZARD PREEMPTION ───────────────────────────────────────
+        # If YOLO + Depth Anything V2 detect a center obstacle closer than 1.5m,
+        # speak a safety warning INSTANTLY without waiting for the VLM.
+        # This bypasses the 3-second MIN_SPEAK_INTERVAL for safety.
+        if immediate_hazard:
+            hazards = [
+                d for d in yolo_detections
+                if d.get("direction") == "Center"
+                and d.get("distance_m") is not None
+                and d["distance_m"] < 1.5
+            ]
+            if hazards:
+                closest = min(hazards, key=lambda x: x["distance_m"])
+                alert   = (
+                    f"Caution! {closest['class']} "
+                    f"{closest['distance_m']:.1f} metres directly ahead."
+                )
+                now = time.time()
+                # Rate-limit the hazard alert to once per 2 seconds
+                if now - last_spoken_time >= 2.0:
+                    speak(alert)
+                    last_spoken_time = now
+                    log_event("hazard", {
+                        "class":      closest["class"],
+                        "distance_m": closest["distance_m"]
+                    })
+                    update_state(last_instruction=alert)
+                    logger.warning(f"[Main] ⚠ Hazard alert spoken: {alert}")
+
+        # 6. Depth estimation (every N frames) — feeds YOLO distance + sonification
         if frame_id % MIDAS_EVERY_N == 0:
             depth_result = midas.estimate(frame)
             update_state(depth={
@@ -314,6 +351,14 @@ def main():
                 "center_bucket": depth_result["center_bucket"],
                 "right_bucket":  depth_result["right_bucket"],
             })
+            # Update sonification danger level from 95th-percentile depth
+            if depth_result["depth_map"] is not None:
+                max_depth = float(np.percentile(depth_result["depth_map"], 95))
+                if max_depth > 0.4:
+                    danger = (max_depth - 0.4) / (0.85 - 0.4)
+                    sonifier.set_danger_level(min(danger, 1.0))
+                else:
+                    sonifier.set_danger_level(0.0)
 
         # 7. Check if arrived at destination
         if goal_node and current_node == goal_node:
@@ -348,29 +393,19 @@ def main():
                 planner.get_edge_description(current_node, path_nodes)
                 if path_nodes else ""
             )
-            # Module 2b: MiDaS Depth
-            depth_result = {"prompt_text": "Depth unknown.", "depth_map": None}
-            if frame_id % cfg.get("midas_every_n", 5) == 0:
-                depth_result = midas.estimate(frame)
-                
-                # Update Sonification Danger Level
-                # Max depth percentile (95th to avoid pixel noise)
-                max_depth = float(np.percentile(depth_result["depth_map"], 95))
-                # Map depth 0.4 -> 0.0 (safe) to 0.85 -> 1.0 (imminent collision)
-                if max_depth > 0.4:
-                    danger = (max_depth - 0.4) / (0.85 - 0.4)
-                    sonifier.set_danger_level(danger)
-                else:
-                    sonifier.set_danger_level(0.0)
-
-            # Depth-aware YOLO prompt with per-object distance estimates
+            # Depth-aware YOLO prompt — uses depth_result already computed in step 6.
+            # If depth wasn't run this frame, fall back to confidence labels.
             yolo_text = yolo.format_for_prompt(
                 yolo_detections,
                 depth_map=depth_result.get("depth_map"),
                 frame_shape=frame.shape
             )
-            
+
             enhanced_frame = enhancer.enhance(frame)
+
+            # Save BEFORE calling — generate_instruction() updates _last_instruction
+            # internally, so comparing after the call always returns False (bug fix).
+            prev_instruction = guidance._last_instruction
 
             instruction = guidance.generate_instruction(
                 frame_bgr             = enhanced_frame,
@@ -385,7 +420,8 @@ def main():
                 edge_description      = edge_desc
             )
 
-            if instruction and instruction != guidance._last_instruction:
+            # Only speak if the instruction is genuinely new (not a cached repeat)
+            if instruction and instruction != prev_instruction:
                 rate = get_tts_rate()
                 speak(instruction, rate=rate)
                 last_spoken_time = now

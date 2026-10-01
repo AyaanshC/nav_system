@@ -476,7 +476,7 @@ def build_osmag_graph(
                 oid for oid, other in nodes.items()
                 if oid != nid
                 and any(kw in other["name"].lower() for kw in vertical_keywords)
-                and abs(other["level"] - node["level"]) == 1
+                and abs(int(other.get("level") or 0) - int(node.get("level") or 0)) == 1
             ]
             existing_pairs = {(e["from"], e["to"]) for e in edges}
             for oid in peers:
